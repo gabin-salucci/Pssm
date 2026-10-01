@@ -1,0 +1,25 @@
+PSMM_HOME=/home/monitor/psmm
+PYTHON=/home/monitor/psmm/.venv/bin/python3
+
+# Job 06/07/08 - collecte des logs d'erreurs, toutes les 10 min
+*/10 * * * * $PYTHON $PSMM_HOME/scripts/ssh_mysql_error.py >> /home/monitor/psmm/logs/errors.log 2>&1
+*/10 * * * * $PYTHON $PSMM_HOME/scripts/ssh_ftp_error.py   >> /home/monitor/psmm/logs/errors.log 2>&1
+*/10 * * * * $PYTHON $PSMM_HOME/scripts/ssh_web_error.py   >> /home/monitor/psmm/logs/errors.log 2>&1
+
+# Job 09 - mail quotidien récapitulatif, tous les jours à 7h
+0 7 * * * $PYTHON $PSMM_HOME/scripts/ssh_serveur_mail.py >> /home/monitor/psmm/logs/report.log 2>&1
+
+# Job 10 - sauvegarde de la base, toutes les 3h
+0 */3 * * * $PYTHON $PSMM_HOME/scripts/ssh_cron_backup.py >> /home/monitor/psmm/logs/backup.log 2>&1
+
+# Job 11 - collecte état système (RAM/CPU/DISK), toutes les 15 min
+*/15 * * * * $PYTHON $PSMM_HOME/scripts/ssh_system_status.py >> /home/monitor/psmm/logs/status.log 2>&1
+
+# Job 12/13 - alerte système (avec throttle 1 mail/h), toutes les 5 min
+*/5 * * * * $PYTHON $PSMM_HOME/scripts/ssh_system_mail.py >> /home/monitor/psmm/logs/alert.log 2>&1
+
+# Job 14 - mises à jour des serveurs via Alcasar, chaque dimanche à 3h
+0 3 * * 0 $PYTHON $PSMM_HOME/scripts/ssh_update.py >> /home/monitor/psmm/logs/update.log 2>&1
+
+# Job 15 (bonus) - résumé périodique dans Google Chat, toutes les heures
+0 * * * * $PYTHON $PSMM_HOME/scripts/google_chat_notify.py >> /home/monitor/psmm/logs/chat.log 2>&1
